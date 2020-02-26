@@ -1,0 +1,58 @@
+﻿@{
+    Layout = null;
+}
+
+<link href="~/Content/css/select2.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/select2.min.js"></script>
+
+<br /><br />
+
+<input type="hidden" class="CountryId"/>
+<select class="Country" style="width:500px">
+
+</select>
+
+<select class="State" style="width:500px;height:30px;border-radius:5px;" >
+    <option>Select State</option>
+</select>
+
+<script>
+    $(document).ready(function () {
+        $(".Country").select2({
+            placeholder: "Counrty",
+            theme: "classic",
+            ajax: {
+                url: "/Home/GetCountryList",
+                dataType: "json",
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+    });
+
+    $(".Country").on("change", function () {
+        var CounrtyID = $(this).val();
+        $(".CountryId").val(CounrtyID);
+        var textBoxVal = $(".CountryId").val();
+        $.ajax({
+            url: "/Home/GetStateList?CountryIDs=" + textBoxVal,
+            dataType: 'json',
+            type: 'post',
+            success: function (data) {
+                $(".State").empty();
+                $.each(data, function (index, row) {
+                    $(".State").append("<option value='" + row.StateId + "'>" + row.StateName + "</option>")
+                });
+            }
+        });
+    });
+</script>
